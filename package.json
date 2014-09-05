@@ -1,0 +1,27 @@
+{
+  "name": "vcdelta",
+  "description": "vcdiff",
+  "version": "0.1.0",
+  "author": "E.Naumenko",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EugeneN/vcdelta"
+  },
+  "engine": [
+    "node >=0.1.102"
+  ],
+  "main": "./out/main.js",
+  "bin": {
+    "vcdelta": "./bin/vcdelta"
+  },
+  "scripts": {
+    "prepublish": "coffee -c -o ./out ./src"
+  },
+  "dependencies": {
+    "minimist": "*",
+    "mkdirp": "*"
+  },
+  "devDependencies": {
+    "coffee-script": "*"
+  }
+}
