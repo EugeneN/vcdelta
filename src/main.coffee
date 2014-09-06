@@ -31,9 +31,11 @@ write = (fn, content) ->
 to_json = (data) -> JSON.stringify data
 from_json = (data) -> JSON.parse data
 
+to_bundle = (fn) -> fn.replace '-min.js', ''
+
 say = (m...) -> console.error m...
 
-gen_delta = (base, target) -> [(path.basename target), (calc_delta (read base), (read target))]
+gen_delta = (base, target) -> [(to_bundle (path.basename target)), (calc_delta (read base), (read target))]
 
 get_build_id = (build_root) ->
     bi = JSON.parse read (to_path build_root, BUILD_ID_FN)
@@ -57,25 +59,26 @@ main = (argv) ->
         say "Usage:\n\t@me --old_build_root=<...> --new_build_root=<...> --delta_root=<...>\nor, to get version:\n\t@me -v"
         process.exit E_BAD_ARGS
 
-    #try
-    old_build_id = get_build_id old_build_root
+    try
+        old_build_id = get_build_id old_build_root
+        new_build_id = get_build_id new_build_root
 
-    realms = fs.readdirSync(new_build_root)
-               .filter (fn) -> not fs.statSync(to_path new_build_root, fn).isFile()
-               .map (fn) -> path.basename fn
+        realms = fs.readdirSync(new_build_root)
+                   .filter (fn) -> not fs.statSync(to_path new_build_root, fn).isFile()
+                   .map (fn) -> path.basename fn
 
-    deltas = realms.map (realm) ->
-        files = fs.readdirSync to_path new_build_root, realm
-                  .filter BUNDLE_FILTER
-                  .map (fn) -> path.basename fn
+        deltas = realms.map (realm) ->
+            files = fs.readdirSync to_path new_build_root, realm
+                      .filter BUNDLE_FILTER
+                      .map (fn) -> path.basename fn
 
-        [realm, (toDict (files.map (fn) -> gen_delta (to_path old_build_root, realm, fn), (to_path new_build_root, realm, fn)))]
+            [realm, (toDict (files.map (fn) -> gen_delta (to_path old_build_root, realm, fn), (to_path new_build_root, realm, fn)))]
 
-    deltas.map ([realm, delta]) -> write (to_path delta_root, old_build_id, realm, DELTA_FN), (to_json delta)
+        deltas.map ([realm, delta]) -> write (to_path delta_root, old_build_id, new_build_id, realm, DELTA_FN), (to_json delta)
 
-#    catch e
-#        say "Sorry, an error occured:\n\t#{e}"
-#        process.exit E_ERROR
+    catch e
+        say "Sorry, an error occured:\n\t#{e}"
+        process.exit E_ERROR
 
 
 #main process.argv

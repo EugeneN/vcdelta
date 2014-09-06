@@ -12,7 +12,8 @@
   ],
   "main": "./out/main.js",
   "bin": {
-    "vcdelta": "./bin/vcdelta"
+    "vcdelta": "./bin/vcdelta",
+    "shift-builds": "./bin/shift-builds"
   },
   "scripts": {
     "prepublish": "coffee -c -o ./out ./src"
